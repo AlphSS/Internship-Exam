@@ -1,0 +1,84 @@
+<%-- sidebar.jspf --%>
+<%
+    String _uri = request.getRequestURI();
+%>
+
+<aside class="sidebar">
+    <div class="sidebar-brand">
+        <div class="sidebar-logo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+        </div>
+        <div class="sidebar-brand-text">
+            <span class="sidebar-brand-name">InternAdmin</span>
+            <span class="sidebar-brand-sub">Management System</span>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+
+        <!-- Dashboard -->
+        <div class="nav-group-label">Overview</div>
+        <a href="${pageContext.request.contextPath}/admin/dashboard"
+           class="nav-link <%= _uri.contains("/admin/dashboard") ? "nav-link--active" : "" %>">
+            Dashboard
+        </a>
+
+        <!-- Companies -->
+        <div class="nav-group-label">Companies</div>
+        <a href="${pageContext.request.contextPath}/admin/viewCompanies"
+           class="nav-link <%= _uri.contains("/admin/viewCompanies") ? "nav-link--active" : "" %>">
+            All Companies
+        </a>
+
+        <a href="${pageContext.request.contextPath}/admin/addCompany"
+           class="nav-link <%= _uri.contains("/admin/addCompany") ? "nav-link--active" : "" %>">
+            Add Company
+        </a>
+
+        <!-- Internships -->
+        <div class="nav-group-label">Internships</div>
+        <a href="${pageContext.request.contextPath}/admin/viewInternships"
+           class="nav-link <%= _uri.contains("/admin/viewInternships") ? "nav-link--active" : "" %>">
+            All Internships
+        </a>
+
+        <a href="${pageContext.request.contextPath}/admin/addInternship"
+           class="nav-link <%= _uri.contains("/admin/addInternship") ? "nav-link--active" : "" %>">
+            Add Internship
+        </a>
+
+        <!-- Applications -->
+        <div class="nav-group-label">Applications</div>
+        <a href="${pageContext.request.contextPath}/admin/viewApplications"
+           class="nav-link <%= _uri.contains("/admin/viewApplications") ? "nav-link--active" : "" %>">
+            View Applications
+        </a>
+
+        <!-- Reports -->
+        <div class="nav-group-label">Reports</div>
+        <a href="${pageContext.request.contextPath}/admin/reports"
+           class="nav-link <%= _uri.contains("/admin/reports") ? "nav-link--active" : "" %>">
+            Report Dashboard
+        </a>
+
+        <a href="${pageContext.request.contextPath}/admin/studentsPerCompany"
+           class="nav-link <%= _uri.contains("/admin/studentsPerCompany") ? "nav-link--active" : "" %>">
+            Students per Company
+        </a>
+
+        <a href="${pageContext.request.contextPath}/admin/internshipCount"
+           class="nav-link <%= _uri.contains("/admin/internshipCount") ? "nav-link--active" : "" %>">
+            Application Counts
+        </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="${pageContext.request.contextPath}/admin/logout" class="nav-link">
+            Logout
+        </a>
+    </div>
+</aside>
