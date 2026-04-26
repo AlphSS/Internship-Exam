@@ -137,3 +137,24 @@ CREATE TABLE IF NOT EXISTS results (
     FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
     FOREIGN KEY (exam_id)    REFERENCES exams(exam_id)       ON DELETE CASCADE
 );
+
+-- ============================================================
+-- STUDENT MODULE — Additional Schema
+-- Run this AFTER the existing schema.sql
+-- Adds authentication support for student login
+-- ============================================================
+
+CREATE TABLE IF NOT EXISTS users (
+    user_id     INT AUTO_INCREMENT PRIMARY KEY,
+    email       VARCHAR(150) UNIQUE NOT NULL,
+    password    VARCHAR(255) NOT NULL,      -- store hashed in production
+    role        ENUM('student','admin') DEFAULT 'student',
+    student_id  INT UNIQUE,                 -- FK to students table (NULL for admin)
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+);
+
+ALTER TABLE applications
+    ADD CONSTRAINT uq_student_internship
+    UNIQUE (student_id, internship_id);
+

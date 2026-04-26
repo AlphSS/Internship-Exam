@@ -1,100 +1,283 @@
-<%-- sidebar.jspf --%>
+<%-- sidebar.jspf — include in every admin JSP immediately after <body> --%>
 <%
-    String _uri = request.getRequestURI();
+    // Extract the last path segment for precise active matching
+    // e.g.  /admin/addExam  ->  "addExam"
+    //       /admin/manageExams -> "manageExams"
+    String _uri      = request.getRequestURI();
+    String _ctxPath  = request.getContextPath();
+    // Strip context path to get the servlet path portion
+    String _spath    = _uri.startsWith(_ctxPath) ? _uri.substring(_ctxPath.length()) : _uri;
+    // Strip leading slash and get the last segment after /admin/
+    // e.g.  /admin/addCompany -> "addCompany"
+    //        /admin/updateCompany -> "updateCompany"
+    int _lastSlash   = _spath.lastIndexOf('/');
+    String _page     = _lastSlash >= 0 ? _spath.substring(_lastSlash + 1) : _spath;
+
+    // ── Exact page-to-link mapping ────────────────────────────────────────
+    // Dashboard
+    boolean _isDash          = _page.equals("dashboard");
+
+    // Companies — both view and edit belong to "viewCompanies" highlight
+    boolean _isViewCompanies = _page.equals("viewCompanies")
+                             || _page.equals("updateCompany")
+                             || _page.equals("deleteCompany");
+    boolean _isAddCompany    = _page.equals("addCompany");
+
+    // Internships
+    boolean _isViewInternships = _page.equals("viewInternships")
+                               || _page.equals("updateInternship")
+                               || _page.equals("deleteInternship");
+    boolean _isAddInternship   = _page.equals("addInternship");
+
+    // Applications
+    boolean _isViewApps      = _page.equals("viewApplications")
+                             || _page.equals("processApplication");
+
+    // Exams
+    boolean _isManageExams   = _page.equals("manageExams")
+                             || _page.equals("addQuestion");   // addQuestion belongs to manage
+    boolean _isAddExam       = _page.equals("addExam");
+    boolean _isViewResults   = _page.equals("viewResults");
+
+    // Reports
+    boolean _isReportDash    = _page.equals("reports");
+    boolean _isStudentsCo    = _page.equals("studentsPerCompany");
+    boolean _isInternCount   = _page.equals("internshipCount");
 %>
-<aside class="sidebar">
+
+<!-- ══════════════════════════════════════════════════════════
+     HAMBURGER BUTTON — visible only on small screens
+     ══════════════════════════════════════════════════════════ -->
+<button class="hamburger" id="hamburgerBtn" aria-label="Open menu" onclick="openSidebar()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+         stroke="currentColor" stroke-width="2.2"
+         stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6"  x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+</button>
+
+<!-- ══════════════════════════════════════════════════════════
+     OVERLAY — dims the page when sidebar is open on mobile
+     ══════════════════════════════════════════════════════════ -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ══════════════════════════════════════════════════════════
+     SIDEBAR
+     ══════════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="mainSidebar">
+
+    <!-- Brand + close button (close only shows on mobile) -->
     <div class="sidebar-brand">
         <div class="sidebar-logo">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
             </svg>
         </div>
         <div class="sidebar-brand-text">
             <span class="sidebar-brand-name">InternAdmin</span>
             <span class="sidebar-brand-sub">Management System</span>
         </div>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close menu" onclick="closeSidebar()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6"  y2="18"/>
+                <line x1="6"  y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
     </div>
 
     <nav class="sidebar-nav">
 
+        <!-- ── Overview ── -->
         <div class="nav-group-label">Overview</div>
         <a href="${pageContext.request.contextPath}/admin/dashboard"
-           class="nav-link <%=_uri.contains("dashboard") ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+           class="nav-link <%= _isDash ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                </svg>
+            </span>
             Dashboard
         </a>
 
+        <!-- ── Companies ── -->
         <div class="nav-group-label">Companies</div>
         <a href="${pageContext.request.contextPath}/admin/viewCompanies"
-           class="nav-link <%=(_uri.contains("viewCompany") && !_uri.contains("addC")) ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+           class="nav-link <%= _isViewCompanies ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+            </span>
             All Companies
         </a>
         <a href="${pageContext.request.contextPath}/admin/addCompany"
-           class="nav-link <%=_uri.contains("addCompany") ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span>
+           class="nav-link <%= _isAddCompany ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="16"/>
+                    <line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+            </span>
             Add Company
         </a>
 
+        <!-- ── Internships ── -->
         <div class="nav-group-label">Internships</div>
         <a href="${pageContext.request.contextPath}/admin/viewInternships"
-           class="nav-link <%=(_uri.contains("viewInternship") && !_uri.contains("addI") && !_uri.contains("update")) ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></span>
+           class="nav-link <%= _isViewInternships ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                </svg>
+            </span>
             All Internships
         </a>
         <a href="${pageContext.request.contextPath}/admin/addInternship"
-           class="nav-link <%=_uri.contains("addInternship") ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span>
+           class="nav-link <%= _isAddInternship ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="16"/>
+                    <line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+            </span>
             Add Internship
         </a>
 
+        <!-- ── Applications ── -->
         <div class="nav-group-label">Applications</div>
         <a href="${pageContext.request.contextPath}/admin/viewApplications"
-           class="nav-link <%=_uri.contains("viewApplication") ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+           class="nav-link <%= _isViewApps ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+            </span>
             View Applications
         </a>
 
+        <!-- ── Exams ── -->
         <div class="nav-group-label">Exams</div>
         <a href="${pageContext.request.contextPath}/admin/manageExams"
-           class="nav-link <%=(_uri.contains("manageExams") || _uri.contains("addExam")) ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>
+           class="nav-link <%= _isManageExams ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+            </span>
             Manage Exams
         </a>
         <a href="${pageContext.request.contextPath}/admin/addExam"
-           class="nav-link <%=_uri.contains("addExam") ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></span>
+           class="nav-link <%= _isAddExam ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="16"/>
+                    <line x1="8" y1="12" x2="16" y2="12"/>
+                </svg>
+            </span>
             Create Exam
         </a>
         <a href="${pageContext.request.contextPath}/admin/viewResults"
-           class="nav-link <%=_uri.contains("viewResults") ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+           class="nav-link <%= _isViewResults ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6"  y1="20" x2="6"  y2="14"/>
+                    <line x1="2"  y1="20" x2="22" y2="20"/>
+                </svg>
+            </span>
             Exam Results
         </a>
 
+        <!-- ── Reports ── -->
         <div class="nav-group-label">Reports</div>
         <a href="${pageContext.request.contextPath}/admin/reports"
-           class="nav-link <%=(_uri.endsWith("/reports") || _uri.endsWith("/reports/")) ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></span>
+           class="nav-link <%= _isReportDash ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="3"  y1="9"  x2="21" y2="9"/>
+                    <line x1="3"  y1="15" x2="21" y2="15"/>
+                    <line x1="9"  y1="3"  x2="9"  y2="21"/>
+                    <line x1="15" y1="3"  x2="15" y2="21"/>
+                </svg>
+            </span>
             Report Dashboard
         </a>
         <a href="${pageContext.request.contextPath}/admin/studentsPerCompany"
-           class="nav-link <%=_uri.contains("studentsPerCompany") ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+           class="nav-link <%= _isStudentsCo ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </span>
             Students per Company
         </a>
         <a href="${pageContext.request.contextPath}/admin/internshipCount"
-           class="nav-link <%=_uri.contains("internshipCount") ? "nav-link--active" : ""%>">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+           class="nav-link <%= _isInternCount ? "nav-link--active" : "" %>">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+            </span>
             Application Counts
         </a>
 
     </nav>
 
+    <!-- Logout -->
     <div class="sidebar-footer">
-        <a href="${pageContext.request.contextPath}/admin/logout" class="nav-link nav-link--logout">
-            <span class="nav-link-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+        <a href="${pageContext.request.contextPath}/admin/logout"
+           class="nav-link nav-link--logout">
+            <span class="nav-link-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+            </span>
             Logout
         </a>
     </div>
+
 </aside>
+
+<script>
+/* ── Sidebar open / close ──────────────────────────────────────── */
+function openSidebar() {
+    document.getElementById('mainSidebar').classList.add('sidebar--open');
+    document.getElementById('sidebarOverlay').classList.add('overlay--visible');
+    document.body.classList.add('no-scroll');
+}
+function closeSidebar() {
+    document.getElementById('mainSidebar').classList.remove('sidebar--open');
+    document.getElementById('sidebarOverlay').classList.remove('overlay--visible');
+    document.body.classList.remove('no-scroll');
+}
+/* Close on ESC */
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeSidebar();
+});
+</script>
